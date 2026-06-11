@@ -1,0 +1,72 @@
+@model List<Especialidad>
+@{
+    ViewData["Title"] = "Especialidades";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold text-primary mb-4"><i class="bi bi-tags"></i> Gestionar Especialidades</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 py-3">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Nueva Especialidad</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="CrearEspecialidad" method="post">
+                        <div class="form-floating mb-3">
+                            <input name="nombre" class="form-control" placeholder="Nombre" required />
+                            <label>Nombre</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea name="descripcion" class="form-control" placeholder="Descripción" style="height:100px" required></textarea>
+                            <label>Descripción</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                            <i class="bi bi-save"></i> Crear
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var esp in Model)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@esp.Nombre</td>
+                                    <td>@esp.Descripcion</td>
+                                    <td>
+                                        <form asp-action="EliminarEspecialidad" method="post" onsubmit="return confirm('¿Eliminar esta especialidad?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@esp.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

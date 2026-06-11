@@ -1,0 +1,170 @@
+@model AgendarCitaViewModel
+@{
+    ViewData["Title"] = "Agendar Cita";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 py-3">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Agendar Nueva Cita</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Agendar" method="post" id="citaForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Tipo de Cita</label>
+                            <div class="row g-2">
+                                @foreach (var tipo in Enum.GetValues<TipoCita>())
+                                {
+                                    <div class="col-md-4">
+                                        <div class="form-check card-radio">
+                                            <input class="form-check-input" type="radio" asp-for="TipoCita"
+                                                   value="@((int)tipo)" id="tipo_@((int)tipo)"
+                                                   data-tipo="@tipo">
+                                            <label class="form-check-label card p-3 border rounded-3 w-100 text-center"
+                                                   for="tipo_@((int)tipo)">
+                                                <i class="bi @(tipo == TipoCita.General ? "bi-person-plus" : tipo == TipoCita.PorHistorial ? "bi-clock-history" : "bi-arrow-right-circle") fs-3 d-block mb-1"></i>
+                                                @switch (tipo)
+                                                {
+                                                    case TipoCita.General: <span>General</span>; break;
+                                                    case TipoCita.PorHistorial: <span>Por Historial</span>; break;
+                                                    case TipoCita.Remitido: <span>Remitido</span>; break;
+                                                }
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <span asp-validation-for="TipoCita" class="text-danger"></span>
+                        </div>
+
+                        <div id="divPorHistorial" class="mb-4 d-none">
+                            <label class="form-label fw-bold">Selecciona una cita anterior</label>
+                            <select asp-for="CitaAnteriorId" class="form-select">
+                                <option value="">-- Selecciona --</option>
+                                @foreach (var c in Model.CitasAnteriores)
+                                {
+                                    <option value="@c.Id">@c.FechaHora.ToString("dd/MM/yyyy") - @c.MedicoNombre (@c.TipoCita)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div id="divGeneralRemitido" class="mb-4">
+                            <label class="form-label fw-bold">Especialidad</label>
+                            <select asp-for="EspecialidadId" class="form-select" id="especialidadSelect">
+                                <option value="">-- Selecciona especialidad --</option>
+                                @foreach (var esp in Model.Especialidades)
+                                {
+                                    <option value="@esp.Id">@esp.Nombre</option>
+                                }
+                            </select>
+
+                            <label class="form-label fw-bold mt-3">Médico</label>
+                            <select asp-for="MedicoId" class="form-select" id="medicoSelect" disabled>
+                                <option value="">-- Primero selecciona especialidad --</option>
+                            </select>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Fecha</label>
+                                <input asp-for="Fecha" class="form-control" type="date" id="fechaInput" />
+                                <span asp-validation-for="Fecha" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Hora</label>
+                                <select asp-for="Hora" class="form-select" id="horaSelect" disabled>
+                                    <option value="">-- Primero selecciona fecha --</option>
+                                </select>
+                                <span asp-validation-for="Hora" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Motivo de la consulta</label>
+                            <textarea asp-for="Motivo" class="form-control" rows="3" placeholder="Describe brevemente el motivo de tu visita"></textarea>
+                            <span asp-validation-for="Motivo" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill">
+                            <i class="bi bi-check-lg"></i> Confirmar Cita
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $('input[name="TipoCita"]').change(function () {
+                var tipo = $(this).data('tipo');
+                if (tipo === 'PorHistorial') {
+                    $('#divPorHistorial').removeClass('d-none');
+                    $('#divGeneralRemitido').addClass('d-none');
+                } else {
+                    $('#divPorHistorial').addClass('d-none');
+                    $('#divGeneralRemitido').removeClass('d-none');
+                }
+            });
+
+            $('#especialidadSelect').change(function () {
+                var espId = $(this).val();
+                if (espId) {
+                    $.getJSON('@Url.Action("ObtenerMedicos", "Paciente")', { especialidadId: espId }, function (data) {
+                        var select = $('#medicoSelect');
+                        select.empty().append('<option value="">-- Selecciona médico --</option>');
+                        $.each(data, function (i, m) {
+                            select.append('<option value="' + m.id + '">' + m.nombreCompleto + '</option>');
+                        });
+                        select.prop('disabled', false);
+                    });
+                } else {
+                    $('#medicoSelect').empty().append('<option value="">-- Primero selecciona especialidad --</option>').prop('disabled', true);
+                }
+            });
+
+            $('#fechaInput').change(function () {
+                var fecha = $(this).val();
+                var medicoId = $('#medicoSelect').val();
+                if (fecha && medicoId) {
+                    $.getJSON('@Url.Action("ObtenerHorarios", "Paciente")', { medicoId: medicoId, fecha: fecha }, function (data) {
+                        var select = $('#horaSelect');
+                        select.empty().append('<option value="">-- Selecciona hora --</option>');
+                        $.each(data, function (i, h) {
+                            var parts = h.split(':');
+                            var timeStr = parts[0] + ':' + parts[1];
+                            select.append('<option value="' + h + '">' + timeStr + '</option>');
+                        });
+                        select.prop('disabled', false);
+                    });
+                } else {
+                    $('#horaSelect').empty().append('<option value="">-- Primero selecciona fecha y médico --</option>').prop('disabled', true);
+                }
+            });
+
+            $('#medicoSelect').change(function () {
+                $('#fechaInput').trigger('change');
+            });
+        });
+    </script>
+    <style>
+        .card-radio input:checked + label {
+            border-color: #0d6efd !important;
+            background-color: #e7f1ff;
+        }
+        .card-radio label {
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .card-radio label:hover {
+            border-color: #0d6efd;
+        }
+    </style>
+}

@@ -1,0 +1,76 @@
+@model List<CitaAdminViewModel>
+@{
+    ViewData["Title"] = "Todas las Citas";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="bi bi-calendar-check"></i> Gestionar Citas</h2>
+        <a asp-action="CrearCitaManual" class="btn btn-primary rounded-pill px-4">
+            <i class="bi bi-plus-circle"></i> Cita Manual
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Motivo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@c.PacienteNombre</td>
+                                <td>@c.MedicoNombre</td>
+                                <td>@c.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td><span class="badge bg-info">@c.TipoCita</span></td>
+                                <td>
+                                    <span class="badge bg-@(c.Estado == "Pendiente" ? "warning text-dark" : c.Estado == "Confirmada" ? "success" : c.Estado == "Cancelada" ? "danger" : "secondary")">@c.Estado</span>
+                                </td>
+                                <td>@c.Motivo</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle" data-bs-toggle="dropdown">
+                                            Cambiar Estado
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <form asp-action="CambiarEstadoCita" method="post" style="display:inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@c.Id" />
+                                                    <button type="submit" name="nuevoEstado" value="Confirmada" class="dropdown-item">Confirmar</button>
+                                                    <button type="submit" name="nuevoEstado" value="Cancelada" class="dropdown-item text-danger">Cancelar</button>
+                                                    <button type="submit" name="nuevoEstado" value="Completada" class="dropdown-item text-success">Completar</button>
+                                                    <button type="submit" name="nuevoEstado" value="Pendiente" class="dropdown-item">Pendiente</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

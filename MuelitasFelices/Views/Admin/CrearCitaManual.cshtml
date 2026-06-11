@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Crear Cita Manual";
+    var pacientes = ViewBag.Pacientes as List<Paciente> ?? new();
+    var medicos = ViewBag.Medicos as List<Medico> ?? new();
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 py-3">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Crear Cita Manual</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="CrearCitaManual" method="post">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Paciente</label>
+                                    <select name="pacienteId" class="form-select" required>
+                                        <option value="">-- Selecciona --</option>
+                                        @foreach (var p in pacientes)
+                                        {
+                                            <option value="@p.Id">@p.Usuario.NombreCompleto</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Médico</label>
+                                    <select name="medicoId" class="form-select" required>
+                                        <option value="">-- Selecciona --</option>
+                                        @foreach (var m in medicos)
+                                        {
+                                            <option value="@m.Id">
+                                                @m.Usuario.NombreCompleto
+                                                (@string.Join(", ", m.MedicoEspecialidades.Select(me => me.Especialidad.Nombre)))
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Fecha</label>
+                                    <input type="date" name="fecha" class="form-control" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Hora</label>
+                                    <input type="time" name="hora" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tipo de Cita</label>
+                                    <select name="tipoCita" class="form-select">
+                                        <option value="General">General</option>
+                                        <option value="PorHistorial">Por Historial</option>
+                                        <option value="Remitido">Remitido</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Motivo</label>
+                                    <input name="motivo" class="form-control" placeholder="Motivo de la cita" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Citas" class="btn btn-outline-secondary rounded-pill">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-check-lg"></i> Crear Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

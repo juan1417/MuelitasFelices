@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="py-5">
+                <i class="bi bi-hospital text-primary" style="font-size:5rem;"></i>
+                <h1 class="display-4 fw-bold text-primary mt-3">Muelitas Felices</h1>
+                <p class="lead text-muted">Sistema de Gestión de Citas Odontológicas</p>
+                <hr class="my-4 w-25 mx-auto">
+                <p class="text-muted mb-4">
+                    Gestiona tus citas dentales de forma fácil y rápida.
+                    Agenda, reprograma o cancela tus consultas con los mejores especialistas.
+                </p>
+                @if (!User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="d-flex justify-content-center gap-3">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg rounded-pill px-5">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary btn-lg rounded-pill px-5">
+                            <i class="bi bi-person-plus"></i> Registrarse
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check text-primary fs-1 mb-3"></i>
+                    <h5 class="fw-bold">Agenda tu Cita</h5>
+                    <p class="text-muted small">Elige especialidad, médico y horario disponible para tu consulta.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="card-body">
+                    <i class="bi bi-clock-history text-success fs-1 mb-3"></i>
+                    <h5 class="fw-bold">Historial Clínico</h5>
+                    <p class="text-muted small">Los médicos pueden registrar y consultar tu historial odontológico.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="card-body">
+                    <i class="bi bi-shield-check text-warning fs-1 mb-3"></i>
+                    <h5 class="fw-bold">Gestión Completa</h5>
+                    <p class="text-muted small">Administración de usuarios, médicos, especialidades y citas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

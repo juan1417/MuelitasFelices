@@ -1,0 +1,82 @@
+@model HistorialViewModel
+@{
+    ViewData["Title"] = "Editar Historial";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-file-earmark-plus"></i> Historial Clínico</h4>
+                        <span class="badge bg-light text-dark">@Model.PacienteNombre</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                    }
+
+                    <div class="alert alert-info">
+                        <strong>Cita:</strong> @Model.FechaCita.ToString("dd/MM/yyyy HH:mm") — @Model.MotivoCita
+                    </div>
+
+                    <form asp-action="GuardarHistorial" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="PacienteId" />
+                        <input type="hidden" asp-for="CitaId" />
+                        <input type="hidden" asp-for="HistorialId" />
+                        <input type="hidden" asp-for="PacienteNombre" />
+                        <input type="hidden" asp-for="FechaCita" />
+                        <input type="hidden" asp-for="MotivoCita" />
+
+                        <div class="mb-3">
+                            <label asp-for="Diagnostico" class="form-label fw-bold"></label>
+                            <textarea asp-for="Diagnostico" class="form-control tinymce" rows="6"></textarea>
+                            <span asp-validation-for="Diagnostico" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Tratamiento" class="form-label fw-bold"></label>
+                            <textarea asp-for="Tratamiento" class="form-control tinymce" rows="6"></textarea>
+                            <span asp-validation-for="Tratamiento" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Observaciones" class="form-label fw-bold"></label>
+                            <textarea asp-for="Observaciones" class="form-control tinymce" rows="4"></textarea>
+                            <span asp-validation-for="Observaciones" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Historial" asp-route-pacienteId="@Model.PacienteId" class="btn btn-outline-secondary rounded-pill">
+                                <i class="bi bi-arrow-left"></i> Volver al historial
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-save"></i> Guardar Historial
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '.tinymce',
+            height: 300,
+            menubar: false,
+            plugins: 'lists link image charmap preview anchor pagebreak searchreplace wordcount visualblocks code fullscreen insertdatetime media table code help wordcount',
+            toolbar: 'undo redo | blocks | bold italic underline strikethrough | bullist numlist | alignleft aligncenter alignright | link image | removeformat | code',
+            branding: false,
+            promotion: false
+        });
+    </script>
+}

@@ -1,0 +1,65 @@
+@model List<HistorialMedico>
+@{
+    ViewData["Title"] = "Historial del Paciente";
+    var pendientes = ViewBag.CitasPendientes as List<Cita> ?? new();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="bi bi-file-medical"></i> Historial de @ViewBag.PacienteNombre</h2>
+        <a asp-action="Pacientes" class="btn btn-outline-secondary rounded-pill">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    @if (pendientes.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Tienes <strong>@pendientes.Count</strong> cita(s) completada(s) sin historial registrado.
+            <div class="mt-2">
+                @foreach (var c in pendientes)
+                {
+                    <a asp-action="Historial" asp-route-pacienteId="@ViewBag.PacienteId" asp-route-citaId="@c.Id"
+                       class="btn btn-sm btn-outline-primary rounded-pill me-1 mb-1">
+                        <i class="bi bi-plus-circle"></i> Cita @c.FechaHora.ToString("dd/MM/yyyy")
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
+            <p>No hay entradas en el historial médico.</p>
+            @if (!pendientes.Any())
+            {
+                <p class="small">Completa una cita para poder agregar el historial.</p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="timeline">
+            @foreach (var h in Model.OrderByDescending(h => h.Fecha))
+            {
+                <div class="card border-0 shadow-sm rounded-4 mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="fw-bold text-primary">@h.Fecha.ToString("dd/MM/yyyy HH:mm")</h6>
+                            <small class="text-muted">Dr. @(h.Medico?.Usuario?.NombreCompleto ?? "")</small>
+                        </div>
+                        <hr />
+                        <p class="mb-1"><strong>Diagnóstico:</strong></p>
+                        <div class="bg-light rounded p-2 mb-2">@Html.Raw(h.Diagnostico)</div>
+                        <p class="mb-1"><strong>Tratamiento:</strong></p>
+                        <div class="bg-light rounded p-2 mb-2">@Html.Raw(h.Tratamiento)</div>
+                        <p class="mb-1"><strong>Observaciones:</strong></p>
+                        <div class="bg-light rounded p-2">@Html.Raw(h.Observaciones)</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

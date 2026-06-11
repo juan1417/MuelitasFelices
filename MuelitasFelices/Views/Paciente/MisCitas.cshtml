@@ -1,0 +1,162 @@
+@model MisCitasViewModel
+@{
+    ViewData["Title"] = "Mis Citas";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="bi bi-calendar-check"></i> Mis Citas</h2>
+        <a asp-action="Agendar" class="btn btn-primary rounded-pill px-4">
+            <i class="bi bi-plus-circle"></i> Nueva Cita
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <ul class="nav nav-tabs mb-4" id="citasTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="proximas-tab" data-bs-toggle="tab" data-bs-target="#proximas" type="button" role="tab">
+                Próximas <span class="badge bg-primary ms-1">@Model.ProximasCitas.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab">
+                Historial <span class="badge bg-secondary ms-1">@Model.HistorialCitas.Count</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="proximas" role="tabpanel">
+            @if (!Model.ProximasCitas.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+                    <p>No tienes citas próximas.</p>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var cita in Model.ProximasCitas)
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-0 shadow-sm rounded-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold">@cita.MedicoNombre</h6>
+                                        <span class="badge bg-@(cita.Estado == "Pendiente" ? "warning text-dark" : cita.Estado == "Confirmada" ? "success" : "secondary")">@cita.Estado</span>
+                                    </div>
+                                    <p class="mb-1 small"><i class="bi bi-calendar"></i> @cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</p>
+                                    <p class="mb-1 small"><i class="bi bi-tag"></i> @cita.TipoCita</p>
+                                    <p class="mb-2 small"><i class="bi bi-chat"></i> @cita.Motivo</p>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill" onclick="cancelarCita(@cita.Id)">
+                                            <i class="bi bi-x-circle"></i> Cancelar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="reprogramarCita(@cita.Id, '@cita.FechaHora.ToString("yyyy-MM-dd")', '@cita.FechaHora.ToString("HH:mm")')">
+                                            <i class="bi bi-arrow-clockwise"></i> Reprogramar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="tab-pane fade" id="historial" role="tabpanel">
+            @if (!Model.HistorialCitas.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-clock-history fs-1 d-block mb-2"></i>
+                    <p>No hay historial de citas.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cita in Model.HistorialCitas)
+                            {
+                                <tr>
+                                    <td>@cita.MedicoNombre</td>
+                                    <td>@cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td><span class="badge bg-info">@cita.TipoCita</span></td>
+                                    <td><span class="badge bg-secondary">@cita.Estado</span></td>
+                                    <td>@cita.Motivo</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<form id="cancelarForm" asp-action="Cancelar" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="cancelarId" />
+</form>
+
+<div class="modal fade" id="reprogramarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reprogramar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Reprogramar" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="reprogramarId" />
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Fecha</label>
+                        <input type="date" name="nuevaFecha" id="nuevaFecha" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Hora</label>
+                        <input type="time" name="nuevaHora" id="nuevaHora" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelarCita(id) {
+            if (confirm('¿Estás seguro de cancelar esta cita?')) {
+                $('#cancelarId').val(id);
+                $('#cancelarForm').submit();
+            }
+        }
+
+        function reprogramarCita(id, fecha, hora) {
+            $('#reprogramarId').val(id);
+            $('#nuevaFecha').val(fecha);
+            $('#nuevaHora').val(hora);
+            new bootstrap.Modal(document.getElementById('reprogramarModal')).show();
+        }
+    </script>
+}

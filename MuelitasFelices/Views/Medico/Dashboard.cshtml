@@ -1,0 +1,97 @@
+@model DashboardMedicoViewModel
+@{
+    ViewData["Title"] = "Panel Médico";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold text-primary mb-4"><i class="bi bi-heart-pulse"></i> Panel del Médico</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-primary bg-gradient text-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Citas Hoy</h6>
+                            <h2 class="fw-bold mb-0">@Model.CitasHoy</h2>
+                        </div>
+                        <i class="bi bi-calendar-day fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-success bg-gradient text-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Pacientes Atendidos</h6>
+                            <h2 class="fw-bold mb-0">@Model.TotalPacientes</h2>
+                        </div>
+                        <i class="bi bi-people fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-warning bg-gradient text-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Pendientes</h6>
+                            <h2 class="fw-bold mb-0">@Model.CitasPendientes</h2>
+                        </div>
+                        <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white rounded-top-4 py-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-list-task"></i> Citas de Hoy</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (!Model.CitasDelDia.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+                    <p class="mb-0">No tienes citas programadas para hoy.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Hora</th>
+                                <th>Paciente</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Motivo</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cita in Model.CitasDelDia)
+                            {
+                                <tr>
+                                    <td>@cita.FechaHora.ToString("HH:mm")</td>
+                                    <td class="fw-bold">@cita.PacienteNombre</td>
+                                    <td><span class="badge bg-info">@cita.TipoCita</span></td>
+                                    <td><span class="badge bg-@(cita.Estado == "Pendiente" ? "warning text-dark" : "success")">@cita.Estado</span></td>
+                                    <td>@cita.Motivo</td>
+                                    <td>
+                                        <a asp-action="MisCitas" class="btn btn-sm btn-outline-primary rounded-pill">Ver</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

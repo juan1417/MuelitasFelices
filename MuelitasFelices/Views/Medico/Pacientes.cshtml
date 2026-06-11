@@ -1,0 +1,62 @@
+@model List<PacienteHistorialViewModel>
+@{
+    ViewData["Title"] = "Mis Pacientes";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold text-primary mb-4"><i class="bi bi-people"></i> Mis Pacientes</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+            <p>Aún no tienes pacientes asignados.</p>
+        </div>
+    }
+    else
+    {
+        <div class="input-group mb-4">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="buscarPaciente" placeholder="Buscar paciente..." />
+        </div>
+
+        <div class="row" id="pacientesContainer">
+            @foreach (var p in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-3 paciente-card">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold me-3" style="width:48px;height:48px">
+                                    @p.PacienteNombre.Substring(0,1).ToUpper()
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0 paciente-nombre">@p.PacienteNombre</h6>
+                                    <small class="text-muted">@p.Email</small>
+                                </div>
+                            </div>
+                            <p class="small mb-1"><i class="bi bi-telephone"></i> @p.Telefono</p>
+                            <p class="small mb-2"><i class="bi bi-geo-alt"></i> @p.Direccion</p>
+                            <a asp-action="Historial" asp-route-pacienteId="@p.PacienteId"
+                               class="btn btn-outline-primary btn-sm rounded-pill w-100">
+                                <i class="bi bi-file-text"></i> Ver Historial Clínico
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $('#buscarPaciente').on('input', function () {
+            var q = $(this).val().toLowerCase();
+            $('.paciente-card').each(function () {
+                var name = $(this).find('.paciente-nombre').text().toLowerCase();
+                $(this).toggle(name.includes(q));
+            });
+        });
+    </script>
+}
