@@ -82,6 +82,7 @@ namespace MuelitasFelices.Controllers
                     .Select(c => new CitaViewModel
                     {
                         Id = c.Id,
+                        PacienteId = c.PacienteId,
                         PacienteNombre = c.Paciente.Usuario.NombreCompleto,
                         FechaHora = c.FechaHora,
                         TipoCita = c.TipoCita.ToString(),
@@ -93,6 +94,7 @@ namespace MuelitasFelices.Controllers
                     .Select(c => new CitaViewModel
                     {
                         Id = c.Id,
+                        PacienteId = c.PacienteId,
                         PacienteNombre = c.Paciente.Usuario.NombreCompleto,
                         FechaHora = c.FechaHora,
                         TipoCita = c.TipoCita.ToString(),
@@ -143,6 +145,12 @@ namespace MuelitasFelices.Controllers
 
             var medico = await _context.Medicos.FirstOrDefaultAsync(m => m.UsuarioId == user.Id);
             if (medico == null) return NotFound();
+
+            if (citaId.HasValue && pacienteId == 0)
+            {
+                var citaInfo = await _context.Citas.FindAsync(citaId.Value);
+                if (citaInfo != null) pacienteId = citaInfo.PacienteId;
+            }
 
             var paciente = await _context.Pacientes.Include(p => p.Usuario)
                 .FirstOrDefaultAsync(p => p.Id == pacienteId);

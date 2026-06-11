@@ -38,22 +38,26 @@ namespace MuelitasFelices.Data
             builder.Entity<Medico>()
                 .HasOne(m => m.Usuario)
                 .WithMany()
-                .HasForeignKey(m => m.UsuarioId);
+                .HasForeignKey(m => m.UsuarioId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Paciente>()
                 .HasOne(p => p.Usuario)
                 .WithMany()
-                .HasForeignKey(p => p.UsuarioId);
+                .HasForeignKey(p => p.UsuarioId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Cita>()
                 .HasOne(c => c.Paciente)
                 .WithMany(p => p.Citas)
-                .HasForeignKey(c => c.PacienteId);
+                .HasForeignKey(c => c.PacienteId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Cita>()
                 .HasOne(c => c.Medico)
                 .WithMany(m => m.Citas)
-                .HasForeignKey(c => c.MedicoId);
+                .HasForeignKey(c => c.MedicoId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Cita>()
                 .HasOne(c => c.CitaAnterior)
